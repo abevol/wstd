@@ -880,7 +880,7 @@ namespace wstd
                 if (exit_code == 0)
                 {
                     err = 8;
-                    return 5;
+                    break;
                 }
             } while (false);
 
