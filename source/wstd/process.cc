@@ -810,100 +810,132 @@ namespace wstd
             return result;
         }
 
-        int WINAPI inject_dll(DWORD ProcessID, const WCHAR* DllFilePath)
+        int WINAPI inject_dll(const DWORD process_id, const WCHAR* dll_file_path)
         {
-            SIZE_T strLen = (wcslen(DllFilePath) + 1) * sizeof(wchar_t);
-
-            if (get_remote_module_handle(ProcessID, DllFilePath, true))
+            if (get_remote_module_handle(process_id, dll_file_path, true))
                 return 0;
 
-            HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, FALSE, ProcessID);
-            if (hProcess == nullptr)
+            int err = 0;
+            HANDLE process = nullptr;
+            LPVOID remote_mem = nullptr;
+            HANDLE remote_thread = nullptr;
+            do
+            {
+                SIZE_T str_len = (wcslen(dll_file_path) + 1) * sizeof(wchar_t);
+                process = OpenProcess(
+                    PROCESS_QUERY_INFORMATION |   // CreateRemoteThread
+                    PROCESS_CREATE_THREAD |       // CreateRemoteThread
+                    PROCESS_VM_OPERATION |        // VirtualAllocEx / VirtualFree
+                    PROCESS_VM_READ |             // CreateRemoteThread
+                    PROCESS_VM_WRITE,             // WriteProcessMemory
+                    FALSE, process_id);
+                if (process == nullptr)
+                {
+                    err = 1;
+                    break;
+                }
+
+                remote_mem = VirtualAllocEx(process, nullptr, str_len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+                if (remote_mem == nullptr)
+                {
+                    err = 2;
+                    break;
+                }
+
+                if (FALSE == WriteProcessMemory(process, (LPVOID)remote_mem, dll_file_path, str_len, nullptr))
+                {
+                    err = 3;
+                    break;
+                }
+
+                HMODULE kernel32 = GetModuleHandle(L"kernel32.dll");
+                if (kernel32 == nullptr)
+                {
+                    err = 4;
+                    break;
+                }
+
+                LPTHREAD_START_ROUTINE load_library = (LPTHREAD_START_ROUTINE)GetProcAddress(kernel32, "LoadLibraryW");
+                if (load_library ==nullptr)
+                {
+                    err = 5;
+                    break;
+                }
+
+                remote_thread = CreateRemoteThread(process, nullptr, 0, load_library, (LPVOID)remote_mem, 0, nullptr);
+                if (remote_thread == nullptr)
+                {
+                    err = 6;
+                    break;
+                }
+
+                WaitForSingleObject(remote_thread, INFINITE);
+
+                DWORD exit_code;
+                if(FALSE == GetExitCodeThread(remote_thread, &exit_code))
+                {
+                    err = 7;
+                    break;
+                }
+                if (exit_code == 0)
+                {
+                    err = 8;
+                    return 5;
+                }
+            } while (false);
+
+            if (remote_mem)
+                VirtualFreeEx(process, remote_mem, 0, MEM_RELEASE);
+            if (remote_thread)
+                CloseHandle(remote_thread);
+            if (process)
+                CloseHandle(process);
+            return err;
+        }
+
+        int WINAPI eject_dll(const DWORD process_id, const WCHAR* dll_file_path)
+        {
+            HMODULE remote_module = get_remote_module_handle(process_id, dll_file_path, true);
+            if (remote_module == nullptr)
+                return 0;
+
+            HANDLE process = OpenProcess(
+                PROCESS_QUERY_INFORMATION |   // CreateRemoteThread
+                PROCESS_CREATE_THREAD |       // CreateRemoteThread
+                PROCESS_VM_OPERATION |        // CreateRemoteThread
+                PROCESS_VM_READ |             // CreateRemoteThread
+                PROCESS_VM_WRITE,             // CreateRemoteThread
+                FALSE, process_id);
+            if (process == nullptr)
             {
                 return 1;
             }
 
-            LPVOID VirtualMem = VirtualAllocEx(hProcess, nullptr, strLen, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-            if (VirtualMem == nullptr)
-            {
-                CloseHandle(hProcess);
+            HMODULE kernel32 = GetModuleHandle(L"kernel32.dll");
+            if (!kernel32)
                 return 2;
-            }
 
-            if (WriteProcessMemory(hProcess, (LPVOID)VirtualMem, DllFilePath, strLen, nullptr) == 0)
+            LPTHREAD_START_ROUTINE free_library = (LPTHREAD_START_ROUTINE)GetProcAddress(kernel32, "FreeLibrary");
+            HANDLE remote_thread = CreateRemoteThread(process, nullptr, 0, free_library, (LPVOID)remote_module, 0, nullptr);
+            if (remote_thread == nullptr)
             {
-                VirtualFreeEx(hProcess, VirtualMem, 0, MEM_RELEASE);
-                CloseHandle(hProcess);
+                CloseHandle(process);
                 return 3;
             }
+            WaitForSingleObject(remote_thread, INFINITE);
 
-            HMODULE hModule = GetModuleHandle(L"kernel32.dll");
-            if (!hModule)
-                return 4;
-            HANDLE hRemoteThread = CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hModule, "LoadLibraryW"), (LPVOID)VirtualMem, 0, NULL);
-
-            if (hRemoteThread == nullptr)
+            DWORD exit_code;
+            GetExitCodeThread(remote_thread, &exit_code);
+            CloseHandle(remote_thread);
+            CloseHandle(process);
+            if (exit_code == NULL)
             {
-                VirtualFreeEx(hProcess, VirtualMem, 0, MEM_RELEASE);
-                CloseHandle(hProcess);
                 return 4;
-            }
-            WaitForSingleObject(hRemoteThread, INFINITE);
-
-            DWORD ThreadTeminationStatus;
-            GetExitCodeThread(hRemoteThread, &ThreadTeminationStatus);
-            VirtualFreeEx(hProcess, VirtualMem, 0, MEM_RELEASE);
-            CloseHandle(hRemoteThread);
-            CloseHandle(hProcess);
-            if (ThreadTeminationStatus == NULL)
-            {
-                return 5;
             }
             return 0;
         }
 
-        int WINAPI enject_dll(DWORD ProcessID, const WCHAR* DllFilePath)
-        {
-            SIZE_T strLen = wcslen(DllFilePath) * sizeof(wchar_t);
-
-            HMODULE hRemoteModule = get_remote_module_handle(ProcessID, DllFilePath, true);
-            if (hRemoteModule == nullptr)
-                return 0;
-
-            HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, FALSE, ProcessID);
-            if (hProcess == nullptr)
-            {
-                // MessageBox(nullptr, IString::formatw(L"打开进程失败：%d", GetLastError()).c_str(), L"Injector", MB_OK);
-                return 1;
-            }
-
-            HMODULE hModule = GetModuleHandle(L"kernel32.dll");
-            if (!hModule)
-                return 2;
-
-            HANDLE hRemoteThread = CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hModule, "FreeLibrary"), (LPVOID)hRemoteModule, 0, nullptr);
-
-            if (hRemoteThread == nullptr)
-            {
-                // MessageBox(nullptr, IString::formatw(L"远程调用失败：%d", GetLastError()).c_str(), L"Injector", MB_OK);
-                CloseHandle(hProcess);
-                return 2;
-            }
-            WaitForSingleObject(hRemoteThread, INFINITE);
-
-            DWORD ThreadTeminationStatus;
-            GetExitCodeThread(hRemoteThread, &ThreadTeminationStatus);
-            CloseHandle(hRemoteThread);
-            CloseHandle(hProcess);
-            if (ThreadTeminationStatus == NULL)
-            {
-                // MessageBox(nullptr, IString::formatw(L"卸载模块失败：%d", GetLastError()).c_str(), L"Injector", MB_OK);
-                return 3;
-            }
-            return 0;
-        }
-
-        void WINAPI enject_module(const WCHAR* pName, const WCHAR* mName)
+        void WINAPI eject_module(const WCHAR* pName, const WCHAR* mName)
         {
             int i = 0;
             std::vector<DWORD> pe = get_process_ids(pName);
@@ -915,7 +947,7 @@ namespace wstd
                     auto path = get_remote_module_path(pid, hMod);
                     if (hMod)
                     {
-                        enject_dll(pid, path.c_str());
+                        eject_dll(pid, path.c_str());
                     }
                 }
             }

@@ -89,10 +89,10 @@ namespace wstd
 
         DWORD WINAPI inject_dll_by_thread_context(DWORD dwProcessID, DWORD dwThreadID, const WCHAR* pszDllFile);
 
-        int WINAPI inject_dll(DWORD ProcessID, const WCHAR* DllFilePath);
+        int WINAPI inject_dll(DWORD process_id, const WCHAR* dll_file_path);
 
-        int WINAPI enject_dll(DWORD ProcessID, const WCHAR* DllFilePath);
+        int WINAPI eject_dll(DWORD process_id, const WCHAR* dll_file_path);
 
-        void WINAPI enject_module(const WCHAR* pName, const WCHAR* mName);
+        void WINAPI eject_module(const WCHAR* pName, const WCHAR* mName);
     }
 }
