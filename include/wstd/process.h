@@ -81,6 +81,8 @@ namespace wstd
 
         bool is_already_running(const GUID* guid, _Out_ HANDLE* mutex = nullptr);
 
+        bool is_mutex_exist(LPCWSTR lpName);
+
         void enable_mini_dump();
 
         bool enable_debug_privilege();

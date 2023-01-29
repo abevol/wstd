@@ -20,12 +20,8 @@ for /f "delims=" %%i in ('"!strCMD!" -nologo -version [17.0^,18.0] -prerelease -
 set vsPath=!vsPath!\VC\Auxiliary\Build\vcvarsall.bat
 set vsvarbat="!vsPath!"
 echo %vsvarbat%
-if ERRORLEVEL 1 (
-    echo call vsvarbat failed!
-    goto final
-)
 
-set TOOLSET=%1
+set PLATFORM_TOOLSET=%1
 set PLATFORM_VERSION=10.0
 
 if DEFINED BUILD_TEST (
@@ -36,17 +32,25 @@ if DEFINED BUILD_TEST (
 
 set PLATFORM_ARCH=x86
 call !vsvarbat! %PLATFORM_ARCH%
+if ERRORLEVEL 1 (
+    echo call vsvarbat failed!
+    goto final
+)
 set SLN_FILE="%CD%\wstd.sln"
-MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Debug" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
-MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Release" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
-MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="ReleaseMT" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
+MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Debug" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%PLATFORM_TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
+MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Release" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%PLATFORM_TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
+MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="ReleaseMT" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%PLATFORM_TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
 
 set PLATFORM_ARCH=x64
 call !vsvarbat! %PLATFORM_ARCH%
+if ERRORLEVEL 1 (
+    echo call vsvarbat failed!
+    goto final
+)
 set SLN_FILE="%CD%\wstd.sln"
-MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Debug" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
-MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Release" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
-MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="ReleaseMT" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
+MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Debug" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%PLATFORM_TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
+MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="Release" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%PLATFORM_TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
+MSBuild %SLN_FILE% /nologo /v:m /t:%TARGET_PROJECTS% /p:Configuration="ReleaseMT" /p:Platform=%PLATFORM_ARCH% /p:PlatformToolset=%PLATFORM_TOOLSET% /p:WindowsTargetPlatformVersion=%PLATFORM_VERSION%
 
 :final
 pause

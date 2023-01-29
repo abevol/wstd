@@ -576,6 +576,16 @@ namespace wstd
             return false;
         }
 
+        bool is_mutex_exist(LPCWSTR lpName)
+        {
+            HANDLE hMutex = OpenMutex(SYNCHRONIZE, FALSE, lpName);
+            if (hMutex) {
+                CloseHandle(hMutex);
+                return true;
+            }
+            return false;
+        }
+
         static int generate_mini_dump(HANDLE hFile, PEXCEPTION_POINTERS pExceptionPointers)
         {
             BOOL bOwnDumpFile = FALSE;
