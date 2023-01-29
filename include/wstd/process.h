@@ -96,5 +96,7 @@ namespace wstd
         int WINAPI eject_dll(DWORD process_id, const WCHAR* dll_file_path);
 
         void WINAPI eject_module(const WCHAR* pName, const WCHAR* mName);
+
+        HMODULE wait_for_module(const wchar_t* module_name);
     }
 }

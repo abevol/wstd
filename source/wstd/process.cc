@@ -962,5 +962,13 @@ namespace wstd
                 }
             }
         }
+
+        HMODULE wait_for_module(const wchar_t* module_name)
+        {
+            HMODULE hModuleHandle = nullptr;
+            while ((hModuleHandle = GetModuleHandle(module_name)) == nullptr)
+                Sleep(1);
+            return hModuleHandle;
+        }
     }
 }
