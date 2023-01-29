@@ -9,6 +9,10 @@
 #pragma once
 #include "base.h"
 
+#define PT_Directly    0
+#define PT_Absolute    1
+#define PT_Relative    2
+
 namespace wstd
 {
     namespace memory

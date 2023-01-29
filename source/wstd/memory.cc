@@ -2,10 +2,6 @@
 #include <wstd/string.h>
 #include <Psapi.h>
 
-#define PatternType_Directly    0
-#define PatternType_Absolute    1
-#define PatternType_Relative    2
-
 #define INRANGE(x, a, b)    ((x) >= (a) && (x) <= (b)) 
 #define getBits( x )        (INRANGE((x),'A','F') ? ((x) - 'A' + 0xA) : (INRANGE((x),'a','f') ? ((x) - 'a' + 0xA) : (INRANGE((x),'0','9') ? (x) - '0' : 0)))
 #define getByte( x )        (getBits((x)[0]) << 4 | getBits((x)[1]))
@@ -410,7 +406,7 @@ namespace wstd
             {
                 if (GetModuleInformation(GetCurrentProcess(), hModule, &ModInfo, sizeof(MODULEINFO)))
                 {
-                    address = find_pattern_ex((uintptr_t)ModInfo.lpBaseOfDll, ModInfo.SizeOfImage, mem_hex, 0, PatternType_Directly, 0);
+                    address = find_pattern_ex((uintptr_t)ModInfo.lpBaseOfDll, ModInfo.SizeOfImage, mem_hex, 0, PT_Directly, 0);
                     if (address)
                     {
                         address = find_pattern_ex(address + start_offset, (uintptr_t)ModInfo.lpBaseOfDll + ModInfo.SizeOfImage - (address + start_offset), pHex, offset, type, loops);
