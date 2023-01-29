@@ -98,5 +98,7 @@ namespace wstd
         void WINAPI eject_module(const WCHAR* pName, const WCHAR* mName);
 
         HMODULE wait_for_module(const wchar_t* module_name);
+
+        HWND wait_for_window(const wchar_t* lpClassName, const wchar_t* lpWindowName);
     }
 }

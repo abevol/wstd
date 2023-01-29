@@ -970,5 +970,13 @@ namespace wstd
                 Sleep(1);
             return hModuleHandle;
         }
+
+        HWND wait_for_window(const wchar_t* lpClassName, const wchar_t* lpWindowName)
+        {
+            HWND hWnd = nullptr;
+            while ((hWnd = FindWindow(lpClassName, lpWindowName)) == nullptr)
+                Sleep(1);
+            return hWnd;
+        }
     }
 }
