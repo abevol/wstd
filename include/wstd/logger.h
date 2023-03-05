@@ -101,6 +101,11 @@ enum LogLevel
 #define _UNUSED_FUNC(...)  (void)0
 
 #define log_print    _UNUSED_FUNC
+#define log_trace    _UNUSED_FUNC
+#define log_debug    _UNUSED_FUNC
+#define log_info     _UNUSED_FUNC
+#define log_warn     _UNUSED_FUNC
+#define log_error    _UNUSED_FUNC
 #define trace_func   _UNUSED_FUNC
 #else
 
