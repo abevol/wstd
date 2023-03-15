@@ -1,5 +1,6 @@
 ﻿#include <wstd/memory.h>
 #include <wstd/string.h>
+#include <wstd/file.h>
 #include <Psapi.h>
 
 #define INRANGE(x, a, b)    ((x) >= (a) && (x) <= (b)) 
@@ -53,6 +54,21 @@ namespace wstd
             if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS))
                 return true;
             return false;
+        }
+
+        bool is_read_pointer(void* p)
+        {
+            return !is_bad_read_pointer(p);
+        }
+
+        bool is_write_pointer(void* p)
+        {
+            return !is_bad_write_pointer(p);
+        }
+
+        bool is_code_pointer(void* p)
+        {
+            return !is_bad_code_pointer(p);
         }
 
         void str_del_char(char* strSrc, char ch)
@@ -414,6 +430,27 @@ namespace wstd
                 }
             }
             return address;
+        }
+
+        std::wstring get_module_path(const void* address)
+        {
+            std::wstring path;
+            HMODULE module;
+            if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)address, &module) == TRUE)
+            {
+                WCHAR moduleName[MAX_PATH];
+                if (GetModuleFileName(module, moduleName, MAX_PATH) == TRUE)
+                {
+                    path = moduleName;
+                }
+            }
+            return path;
+        }
+
+        std::wstring get_module_name(const void* address)
+        {
+            std::wstring path = get_module_path(address);
+            return file::get_filename(path);
         }
     }
 }

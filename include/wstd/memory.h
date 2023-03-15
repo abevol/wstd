@@ -20,6 +20,9 @@ namespace wstd
         bool is_bad_read_pointer(void* p);
         bool is_bad_write_pointer(void* p);
         bool is_bad_code_pointer(void* p);
+        bool is_read_pointer(void* p);
+        bool is_write_pointer(void* p);
+        bool is_code_pointer(void* p);
         uintptr_t find_pattern(uintptr_t start, size_t length, const unsigned char* pattern, char mask[]);
         uintptr_t find_pattern_ex(uintptr_t start, size_t length, const char* hex_str, int offset, int type, int loops);
         uintptr_t find_pattern_in_module(const wchar_t* module_name, const char* pHex, int offset, int type, int loops);
@@ -33,5 +36,8 @@ namespace wstd
         uintptr_t find_pattern_in_module_after_string(const wchar_t* module_name, const char* string, bool fully, const char* pHex, int offset, int type, int loops, int start_offset);
         uintptr_t find_pattern_in_module_after_string_x64(const wchar_t* module_name, const char* string, bool fully, const char* pHex, int offset, int type, int loops, int start_offset);
         uintptr_t find_pattern_in_module_after_mem(const wchar_t* module_name, const char* mem_hex, const char* pHex, int offset, int type, int loops, int start_offset);
+
+        std::wstring get_module_path(const void* address);
+        std::wstring get_module_name(const void* address);
     }
 }
