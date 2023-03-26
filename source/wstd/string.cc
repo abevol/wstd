@@ -101,6 +101,22 @@ namespace wstd
             return result;
         }
 
+        bool compare(const char* a, const char* b, bool no_case)
+        {
+            if(!a || !b) return false;
+            if (no_case)
+                return (strcasecmp(a, b) == 0);
+            return (strcmp(a, b) == 0);
+        }
+
+        bool compare(const wchar_t* a, const wchar_t* b, bool no_case)
+        {
+            if (!a || !b) return false;
+            if (no_case)
+                return (wcscasecmp(a, b) == 0);
+            return (wcscmp(a, b) == 0);
+        }
+
         bool compare(const std::string& a, const std::string& b, bool no_case)
         {
             if (no_case)

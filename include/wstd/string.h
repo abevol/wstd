@@ -228,6 +228,10 @@ namespace wstd
             return s;
         }
 
+        bool compare(const char* a, const char* b, bool no_case = false);
+
+        bool compare(const wchar_t* a, const wchar_t* b, bool no_case = false);
+
         bool compare(const std::string& a, const std::string& b, bool no_case = false);
 
         bool compare(const std::wstring& a, const std::wstring& b, bool no_case = false);
