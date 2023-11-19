@@ -46,6 +46,7 @@
     <ClCompile Include="..\..\source\wstd\service_base.cc" />
     <ClCompile Include="..\..\source\wstd\sqlite.cc" />
     <ClCompile Include="..\..\source\wstd\string.cc" />
+    <ClCompile Include="..\..\source\wstd\text_reader.cc" />
     <ClCompile Include="..\..\source\wstd\time.cc" />
     <ClCompile Include="..\..\source\wstd\logger.cc" />
   </ItemGroup>
@@ -69,6 +70,7 @@
     <ClInclude Include="..\..\include\wstd\service_base.h" />
     <ClInclude Include="..\..\include\wstd\sqlite.h" />
     <ClInclude Include="..\..\include\wstd\string.h" />
+    <ClInclude Include="..\..\include\wstd\text_reader.h" />
     <ClInclude Include="..\..\include\wstd\thread_pool.h" />
     <ClInclude Include="..\..\include\wstd\time.h" />
     <ClInclude Include="..\..\include\wstd\logger.h" />

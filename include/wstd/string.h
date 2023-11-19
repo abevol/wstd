@@ -152,8 +152,77 @@ namespace wstd
         }
 
         template<typename CharT>
+        int to_int(const std::basic_string<CharT>& str)
+        {
+            if (str.empty())
+                return 0;
+
+            int result = 0;
+            try
+            {
+                result = std::stoi(str);
+            }
+            catch (...)
+            {
+            }
+            return result;
+        }
+
+        template<typename CharT>
+        unsigned long to_ul(const std::basic_string<CharT>& str)
+        {
+            if (str.empty())
+                return 0;
+
+            unsigned long result = 0;
+            try
+            {
+                result = std::stoul(str);
+            }
+            catch (...)
+            {
+            }
+            return result;
+        }
+
+        template<typename CharT, typename ValueT>
+        ValueT to(const std::basic_string<CharT>& str) = delete;
+
+        template <>
+        inline int to(const std::string& str)
+        {
+            if (str.empty())
+                return 0;
+            return std::stoi(str);
+        }
+
+        template <>
+        inline int to(const std::wstring& str)
+        {
+            if (str.empty())
+                return 0;
+            return std::stoi(str);
+        }
+
+        template <>
+        inline float to(const std::string& str)
+        {
+            if (str.empty())
+                return 0;
+            return std::stof(str);
+        }
+
+        template <>
+        inline float to(const std::wstring& str)
+        {
+            if (str.empty())
+                return 0;
+            return std::stof(str);
+        }
+
+        template<typename CharT>
         std::vector<std::basic_string<CharT>> split(const std::basic_string<CharT>& str,
-            const std::basic_string<CharT>& delimiter, const bool trim_empty = false)
+            const CharT* delimiter, size_t length, const bool trim_empty = false)
         {
             size_t pos, last_pos = 0, len;
             std::vector<std::basic_string<CharT>> tokens;
@@ -177,9 +246,68 @@ namespace wstd
                     break;
                 }
 
-                last_pos = pos + delimiter.size();
+                last_pos = pos + length;
             }
             return tokens;
+        }
+
+        template<typename CharT, const CharT SizeT>
+        std::vector<std::basic_string<CharT>> split(const std::basic_string<CharT>& str,
+            const CharT(&delimiter)[SizeT], const bool trim_empty = false)
+        {
+            return split<CharT>(str, delimiter, SizeT - sizeof(CharT), trim_empty);
+        }
+
+        template<typename CharT>
+        std::vector<std::basic_string<CharT>> split(const std::basic_string<CharT>& str,
+            const std::basic_string<CharT>& delimiter, const bool trim_empty = false)
+        {
+            return split<CharT>(str, delimiter.c_str(), delimiter.length(), trim_empty);
+        }
+
+        template<typename CharT, typename ValueT>
+        std::vector<ValueT> split(const std::basic_string<CharT>& str,
+            const CharT* delimiter, size_t length, const bool trim_empty = false)
+        {
+            size_t pos, last_pos = 0, len;
+            std::vector<ValueT> tokens;
+
+            while (true)
+            {
+                pos = str.find(delimiter, last_pos);
+                if (pos == std::basic_string<CharT>::npos)
+                {
+                    pos = str.size();
+                }
+
+                len = pos - last_pos;
+                if (!trim_empty || len != 0)
+                {
+                    tokens.push_back(to<CharT, ValueT>(str.substr(last_pos, len)));
+                }
+
+                if (pos == str.size())
+                {
+                    break;
+                }
+
+                last_pos = pos + length;
+            }
+            return tokens;
+        }
+
+        template<typename CharT, typename ValueT, const CharT SizeT>
+        std::vector<ValueT> split(const std::basic_string<CharT>& str,
+            const CharT(&delimiter)[SizeT], const bool trim_empty = false)
+        {
+            return split<CharT, ValueT>(str, delimiter, SizeT - sizeof(CharT), trim_empty);
+        }
+
+        template<typename CharT, typename ValueT>
+        std::vector<ValueT> split(const std::basic_string<CharT>& str,
+            const std::basic_string<CharT>& delimiter, const bool trim_empty = false)
+        {
+            return split<CharT, ValueT>(str, delimiter.c_str(), delimiter.length(), trim_empty);
         }
 
         template<typename CharT>
@@ -505,40 +633,6 @@ namespace wstd
         }
 
         template<typename CharT>
-        int to_int(const std::basic_string<CharT>& str)
-        {
-            if (str.empty())
-                return 0;
-
-            int result = 0;
-            try
-            {
-                result = std::stoi(str);
-            }
-            catch (...)
-            {
-            }
-            return result;
-        }
-
-        template<typename CharT>
-        unsigned long to_ul(const std::basic_string<CharT>& str)
-        {
-            if (str.empty())
-                return 0;
-
-            unsigned long result = 0;
-            try
-            {
-                result = std::stoul(str);
-            }
-            catch (...)
-            {
-            }
-            return result;
-        }
-
-        template<typename CharT>
         std::basic_string<CharT> guid_to_string(const GUID* uuid) = delete;
         template<>
         std::string guid_to_string(const GUID* uuid);
@@ -615,5 +709,20 @@ namespace wstd
             result.pop_back();
         result.push_back('}');
         return result;
+    }
+
+    template <class Container>
+    bool contains(const Container& container, const typename Container::value_type& element)
+    {
+        return std::find(container.begin(), container.end(), element) != container.end();
+    }
+
+    template <typename IntT>
+    std::string int_to_hex(IntT w, size_t hex_len = sizeof(IntT) << 1) {
+        static const char* digits = "0123456789ABCDEF";
+        std::string rc(hex_len, '0');
+        for (size_t i = 0, j = (hex_len - 1) * 4; i < hex_len; ++i, j -= 4)
+            rc[i] = digits[(w >> j) & 0x0f];
+        return rc;
     }
 }
