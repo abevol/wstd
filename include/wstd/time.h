@@ -20,13 +20,13 @@ namespace wstd
 
         std::time_t localtime_string_to_timestamp(const std::string& str);
 
-        std::string timestamp_to_localtime_string(std::time_t unix_time, const std::string& format = "%d-%d-%d.%d:%d:%d");
+        std::string timestamp_to_localtime_string(std::time_t unix_time, const std::string& format = "%d-%02d-%02d.%02d:%02d:%02d");
 
         std::wstring timestamp_to_localtime_wstring(std::time_t unix_time, const std::wstring& format);
 
-        std::string get_localtime_string(const std::string& format = "%d-%d-%d.%d:%d:%d");
+        std::string get_localtime_string(const std::string& format = "%d-%02d-%02d.%02d:%02d:%02d");
 
-        std::wstring get_localtime_wstring(const std::wstring& format = L"%d-%d-%d.%d:%d:%d");
+        std::wstring get_localtime_wstring(const std::wstring& format = L"%d-%02d-%02d.%02d:%02d:%02d");
 
         LONGLONG filetime_to_timestamp(FILETIME ft);
 
