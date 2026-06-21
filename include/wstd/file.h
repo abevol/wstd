@@ -79,6 +79,7 @@ namespace wstd
 
         bool write_file(const std::wstring& filename, const std::string& data, bool append = false);
         bool write_file(const std::wstring& filename, const std::wstring& data, bool append = false);
+        bool write_file(const std::wstring& filename, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, bool append = false);
 
         std::wstring get_filename(const std::wstring& path);
         std::wstring get_filename_without_extension(const std::wstring& path);

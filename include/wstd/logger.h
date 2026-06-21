@@ -97,6 +97,12 @@ enum LogLevel
     kLevelNone = logger::kLevelNone  ///< 不打印日志
 };
 
+#ifdef LOGGER_NO_FUNC
+#define LOGGER_FUNC L""
+#else
+#define LOGGER_FUNC (L"[" __FUNCTIONW__ L"]")
+#endif
+
 #ifdef LOGGER_NO_LOG
 #define _UNUSED_FUNC(...)  (void)0
 
@@ -111,29 +117,29 @@ enum LogLevel
 
 #define log_print(level, ...) \
     if (logger::is_log_enable(level)) \
-        logger::print(level, __FILEW__, __LINE__, __FUNCTIONW__, __VA_ARGS__)
+        logger::print(level, __FILEW__, __LINE__, LOGGER_FUNC, __VA_ARGS__)
 
 #define log_trace(...) \
     if (logger::is_log_enable(logger::kTrace)) \
-        logger::print(logger::kTrace, __FILEW__, __LINE__, __FUNCTIONW__, __VA_ARGS__)
+        logger::print(logger::kTrace, __FILEW__, __LINE__, LOGGER_FUNC, __VA_ARGS__)
 
 #define log_debug(...) \
     if (logger::is_log_enable(logger::kDebug)) \
-        logger::print(logger::kDebug, __FILEW__, __LINE__, __FUNCTIONW__, __VA_ARGS__)
+        logger::print(logger::kDebug, __FILEW__, __LINE__, LOGGER_FUNC, __VA_ARGS__)
 
 #define log_info(...) \
     if (logger::is_log_enable(logger::kInfo)) \
-        logger::print(logger::kInfo, __FILEW__, __LINE__, __FUNCTIONW__, __VA_ARGS__)
+        logger::print(logger::kInfo, __FILEW__, __LINE__, LOGGER_FUNC, __VA_ARGS__)
 
 #define log_warn(...) \
     if (logger::is_log_enable(logger::kWarning)) \
-        logger::print(logger::kWarning, __FILEW__, __LINE__, __FUNCTIONW__, __VA_ARGS__)
+        logger::print(logger::kWarning, __FILEW__, __LINE__, LOGGER_FUNC, __VA_ARGS__)
 
 #define log_error(...) \
     if (logger::is_log_enable(logger::kError)) \
-        logger::print(logger::kError, __FILEW__, __LINE__, __FUNCTIONW__, __VA_ARGS__)
+        logger::print(logger::kError, __FILEW__, __LINE__, LOGGER_FUNC, __VA_ARGS__)
 
 #define trace_func() \
-        logger::FuncTrace funcTrace(__FILEW__, __LINE__, __FUNCTIONW__)
+        logger::FuncTrace funcTrace(__FILEW__, __LINE__, LOGGER_FUNC)
 
 #endif // !LOGGER_NO_LOG

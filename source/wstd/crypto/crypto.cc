@@ -2,6 +2,8 @@
 #include <wstd/base.h>
 #include <wincrypt.h>
 
+#pragma comment (lib,"Crypt32.lib")
+
 namespace wstd
 {
     namespace crypto

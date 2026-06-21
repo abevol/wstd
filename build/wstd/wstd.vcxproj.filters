@@ -90,6 +90,9 @@
     <ClCompile Include="..\..\source\wstd\crypto\bcrypt.cc">
       <Filter>Source Files\crypto</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\wstd\text_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\wstd\file.h">
@@ -159,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\wstd\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\wstd\text_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

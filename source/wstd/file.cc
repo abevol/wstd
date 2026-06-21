@@ -406,38 +406,26 @@ namespace wstd
 
         bool write_file(const std::wstring& filename, const std::string& data, bool append)
         {
-            HANDLE hFile = CreateFile(filename.c_str(), append ? FILE_APPEND_DATA : GENERIC_WRITE,
-                                      FILE_SHARE_READ, nullptr, append ? OPEN_ALWAYS : CREATE_ALWAYS,
-                                      FILE_ATTRIBUTE_NORMAL, nullptr);
-            if (hFile != INVALID_HANDLE_VALUE)
-            {
-                if (append)
-                    SetFilePointer(hFile, 0, NULL, FILE_END);
-
-                DWORD bytesWritten = 0;
-                if (WriteFile(hFile, data.c_str(), (DWORD)data.size(), &bytesWritten, nullptr))
-                {
-                    CloseHandle(hFile);
-                    return true;
-                }
-                CloseHandle(hFile);
-            }
-            return false;
+            return write_file(filename, data.c_str(), (DWORD)data.size(), append);
         }
 
         bool write_file(const std::wstring& filename, const std::wstring& data, bool append)
         {
+            return write_file(filename, data.c_str(), (DWORD)data.size() * sizeof(std::wstring::value_type), append);
+        }
+
+        bool write_file(const std::wstring& filename, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, bool append)
+        {
             HANDLE hFile = CreateFile(filename.c_str(), append ? FILE_APPEND_DATA : GENERIC_WRITE,
-                                      FILE_SHARE_READ, nullptr, append ? OPEN_ALWAYS : CREATE_ALWAYS,
-                                      FILE_ATTRIBUTE_NORMAL, nullptr);
+                FILE_SHARE_READ, nullptr, append ? OPEN_ALWAYS : CREATE_ALWAYS,
+                FILE_ATTRIBUTE_NORMAL, nullptr);
             if (hFile != INVALID_HANDLE_VALUE)
             {
                 if (append)
                     SetFilePointer(hFile, 0, NULL, FILE_END);
 
                 DWORD bytesWritten = 0;
-                if (WriteFile(hFile, data.c_str(), (DWORD)data.size() * sizeof(std::wstring::value_type), &bytesWritten,
-                              nullptr))
+                if (WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, &bytesWritten, nullptr))
                 {
                     CloseHandle(hFile);
                     return true;

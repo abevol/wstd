@@ -305,7 +305,7 @@ namespace logger
             }
             else
             {
-                len = _scprintf("[%02d:%02d:%02d.%03d][%04x][%hs][%ws:%d][%ws] %hs",
+                len = _scprintf("[%02d:%02d:%02d.%03d][%04x][%hs][%ws:%d]%ws %hs",
                     lt.tm_hour, lt.tm_min, lt.tm_sec, today.millitm,
                     GetCurrentThreadId(),
                     g_level_names[level],
@@ -325,7 +325,7 @@ namespace logger
                 }
                 result.resize(len);
                 len = sprintf_s(&result[0], result.size() + sizeof(char),
-                    "[%02d:%02d:%02d.%03d][%04x][%hs][%ws:%d][%ws] %hs",
+                    "[%02d:%02d:%02d.%03d][%04x][%hs][%ws:%d]%ws %hs",
                     lt.tm_hour, lt.tm_min, lt.tm_sec, today.millitm,
                     GetCurrentThreadId(),
                     g_level_names[level],
