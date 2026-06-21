@@ -302,15 +302,27 @@ namespace wstd
         uintptr_t mem_search_ref(uintptr_t buf, size_t size, uintptr_t target, int32_t next_line)
         {
             size_t i = 0;
-            while (true)
+            while (i + sizeof(int32_t) <= size) // 修复了潜在的越界问题
             {
-                if (i + sizeof(int32_t) > size)
-                    break;
                 uintptr_t addr = buf + i;
                 int32_t offset = *(int32_t*)addr;
+
+                // 初步匹配数学公式
                 if (target == offset + addr + next_line)
                 {
-                    return addr;
+                    // 误报过滤 (Opcode/ModRM 校验)
+                    // 确保 addr 前面的字节是一个合法的 RIP 相对寻址 ModRM 字节
+                    if (i >= 1)
+                    {
+                        uint8_t modrm = *(uint8_t*)(addr - 1);
+
+                        // 0xC7 的二进制是 11000111，用于屏蔽掉寄存器位(Reg)
+                        // RIP 寻址的特征是 Mod = 00 且 R/M = 101 (0x05)
+                        if ((modrm & 0xC7) == 0x05)
+                        {
+                            return addr;
+                        }
+                    }
                 }
                 i = i + 1;
             }
