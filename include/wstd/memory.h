@@ -39,5 +39,16 @@ namespace wstd
 
         std::wstring get_module_path(const void* address);
         std::wstring get_module_name(const void* address);
+
+        inline const void** get_vtable(const void* inst, size_t offset = 0)
+        {
+            return *reinterpret_cast<const void***>((size_t)inst + offset);
+        }
+
+        template <typename Fn>
+        Fn get_vtable_function(const void* inst, size_t index, size_t offset = 0)
+        {
+            return reinterpret_cast<Fn>(get_vtable(inst, offset)[index]);
+        }
     }
 }
